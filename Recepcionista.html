@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Proyecto-Dynamic-GYM</title>
+<style>
+/* ===== ESTILO GENERAL  ===== */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  height: 100vh;
+  background: #1e1e1e;
+  color: #eee;
+}
+
+/* ===== SIDEBAR ===== */
+#sidebar {
+  width: 260px;
+  background: #111;
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid #222;
+}
+#sidebar h2 {
+  text-align: center;
+  color: #00c8ff;
+  margin-bottom: 25px;
+}
+.menu-btn {
+  padding: 15px 20px;
+  color: #eee;
+  text-align: left;
+  border: none;
+  width: 100%;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  border-bottom: 1px solid #222;
+}
+.menu-btn:hover {
+  background: #272727;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+#content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+.section {
+  display: none;
+  background: #2b2b2b;
+  padding: 20px;
+  border-radius: 10px;
+}
+.section.active {
+  display: block;
+}
+input, select {
+  padding: 10px;
+  width: 100%;
+  margin: 8px 0;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  color: #eee;
+  border-radius: 5px;
+}
+button {
+  padding: 10px 15px;
+  background: #00c8ff;
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+button:hover {
+  background: #00a7d6;
+}
+.table-box {
+  margin-top: 15px;
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #1e1e1e;
+  color: #eee;
+}
+th, td {
+  padding: 10px;
+  border: 1px solid #333;
+  text-align: left;
+}
+th {
+  background: #333;
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar">
+  <h2>Dynamic GYM</h2>
+  <button class="menu-btn" onclick="showSection('sec-clientes')">Registrar Cliente</button>
+  <button class="menu-btn" onclick="showSection('sec-asistencia')">Registrar Asistencia</button>
+  <button class="menu-btn" onclick="showSection('sec-servicios')">Servicios Ocasionales</button>
+  <button class="menu-btn" onclick="showSection('sec-membresias')">Membresías</button>
+  <button class="menu-btn" onclick="showSection('sec-consultas')">Consultas</button>
+</div>
+
+<!-- CONTENIDO -->
+<div id="content">
+
+  <!-- REGISTRAR CLIENTE -->
+  <div id="sec-clientes" class="section active">
+    <h2>Registrar Cliente</h2>
+    <input id="dni" placeholder="DNI" />
+    <input id="nombre" placeholder="Nombre" />
+    <input id="telefono" placeholder="Teléfono" />
+    <input id="correo" placeholder="Correo" />
+    <input id="edad" placeholder="Edad" />
+    <select id="genero">
+      <option value="M">Masculino</option>
+      <option value="F">Femenino</option>
+    </select>
+    
+    <button onclick="registrarCliente()">Guardar Cliente</button>
+  </div>
+
+  <!-- ASISTENCIA -->
+  <div id="sec-asistencia" class="section">
+    <h2>Registrar Asistencia</h2>
+    <input id="dniAsistencia" placeholder="DNI del Cliente" />
+    <button onclick="registrarAsistencia()">Registrar</button>
+  </div>
+
+  <!-- SERVICIOS OCASIONALES -->
+  <div id="sec-servicios" class="section">
+    <h2>Servicio Ocasional</h2>
+    <input id="dniSO" placeholder="DNI" />
+    <input id="montoSO" placeholder="Monto S/" />
+    <button onclick="registrarServicioOcasional()">Registrar</button>
+  </div>
+
+  <!-- MEMBRESIAS -->
+  <div id="sec-membresias" class="section">
+    <h2>Membresías</h2>
+    <input id="dniMemb" placeholder="DNI" />
+    <select id="tipoMemb">
+      <option value="Mensual">Mensual</option>
+      <option value="Trimestral">Trimestral</option>
+      <option value="Anual">Anual</option>
+
+    </select>
+    <input id="montoMemb" placeholder="Monto S/" />
+    <button onclick="registrarMembresia()">Registrar/Renovar</button>
+    <br /><br />
+    <input id="motivoCancel" placeholder="Motivo cancelación" />
+    <button onclick="cancelarMembresia()">Cancelar membresía</button>
+  </div>
+
+  <!-- CONSULTAS -->
+  <div id="sec-consultas" class="section">
+    <h2>Consultas</h2>
+    <select id="filtroEstado">
+      <option value="Todos">Todos</option>
+      <option value="Activa">Activa</option>
+      <option value="Vencida">Vencida</option>
+      <option value="Por vencer">Próxima a vencer</option>
+    </select>
+   <button onclick="filtrarPorEstado()">Filtrar</button>
+   <br><br>
+     <input id="buscarDNI" placeholder="Buscar por DNI..." />
+     <button onclick="buscarPorDNI()">Buscar</button>
+     <div class="table-box">
+     <table id="tablaConsultas"></table>
+     </div>
+  </div>
+</div>
+
+<script src="Recepcionista.js"></script>
+
+</body>
+</html>

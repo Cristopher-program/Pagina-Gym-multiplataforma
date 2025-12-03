@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DYNA TRACK — PRO B+</title>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  :root{
+    --bg:#070707; 
+    --panel:#121212; 
+    --accent:#ff1a1a; 
+    --accent-2:#ff6600; 
+    --muted:#9e9e9e;
+    --card:#0f0f0f; 
+    --success:#16a34a;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+    background:linear-gradient(180deg,#050505,#0f0f0f);
+    color:#eee;
+    -webkit-font-smoothing:antialiased
+  }
+
+  .app{max-width:1100px;margin:20px auto;padding:16px}
+  .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  h1{font-family:Oswald, sans-serif;margin:0;font-size:20px}
+  .muted{color:var(--muted);font-size:13px}
+  .grid{display:grid;grid-template-columns:360px 1fr;gap:16px}
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:10px;
+    padding:12px;
+    border:1px solid rgba(255,255,255,0.03)
+  }
+
+  input,select,textarea{
+    width:100%;
+    padding:8px;
+    border-radius:8px;
+    border:1px solid rgba(255,255,255,0.04);
+    background:transparent;
+    color:#fff;
+    margin-bottom:8px
+  }
+  .membership-box {
+  max-width: 600px;
+  margin: 0 auto;        /* Centrado horizontal */
+}
+ select {
+  padding: 10px;
+  width: 100%;
+  margin: 8px 0;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  color: #eee;
+  border-radius: 5px;
+}
+  button{
+    padding:8px 10px;
+    border-radius:8px;
+    border:0;
+    cursor:pointer
+  }
+
+  .btn-primary{
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    color:#111;
+    font-weight:700
+  }
+
+  .btn-ghost{
+    background:transparent;
+    border:1px solid rgba(255,255,255,0.06);
+    color:#ddd
+  }
+
+  .small{padding:6px 8px;font-size:13px}
+  .row{display:flex;gap:8px}
+  .label-small{font-size:12px;color:var(--muted);margin-bottom:6px}
+
+  /* ======= ESTILO TABLA CONSULTAS ======= */
+  #tablaConsultas tr {
+    background: rgba(255,255,255,0.03);
+  }
+
+  #tablaConsultas td, 
+  #tablaConsultas th {
+    padding: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  #tablaConsultas tr:hover {
+    background: rgba(255,255,255,0.08);
+  }
+
+  .table-box {
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 8px;
+    padding: 6px;
+    background: rgba(0,0,0,0.2);
+  }
+
+</style>
+</head>
+
+<body>
+  <div class="app">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div>
+        <h1>Dynamic Gym</h1>
+      </div>
+
+      <div class="controls">
+        <div class="kbd">Usuario: <strong>19152201</strong></div>
+        <button id="btnClearAll" class="tiny btn-ghost">Borrar todo</button>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- LEFT PANEL -->
+      <div>
+
+        <!-- Rutinas creadas -->
+        <div class="card">
+          <h3>Rutinas creadas</h3>
+          <div id="routinesList" style="margin-top:8px"></div>
+
+          <div style="margin-top:10px">
+            <input id="newRoutineTitle" placeholder="Inserta el nombre de tu nueva rutina" />
+            <div class="row">
+              <button id="btnCreateRoutine" class="btn-primary small">Crear rutina</button>
+            </div>
+            <div class="info-note">Al crear una rutina puedes abrirla para comenzar un entrenamiento editable.</div>
+          </div>
+        </div>
+
+        <!-- Rutinas rápidas -->
+        <div class="card" style="margin-top:12px">
+          <h3>Rutinas automáticas</h3>
+          <div class="row" style="margin-bottom:8px">
+            <button id="quickFullBody" class="btn-primary">Full body</button>
+            <button id="quickStrength" class="btn-ghost">Strongman</button>
+            <button id="quickFunctional" class="btn-ghost">Fuerza Funcional</button>
+          </div>
+        </div>
+
+        <!-- Export / Import -->
+        <div class="card" style="margin-top:12px">
+          <h3>Rutinas de entrenamientos</h3>
+          <div class="export-area">
+            <button id="btnExport" class="btn-ghost small">Guardar memoria</button>
+            <button id="btnImport" class="btn-ghost small">Cargar memoria</button>
+            <input id="fileImport" type="file" accept="application/json" style="display:none" />
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div>
+
+        <!-- Dashboard -->
+        <div class="card">
+          <h3>Gráficas</h3>
+
+          <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+            <div style="flex:1">
+              <div class="muted">Volumen semanal</div>
+              <div style="font-weight:800;font-size:18px" id="volumeWeek">0 kg</div>
+            </div>
+
+            <div style="width:320px">
+              <canvas id="chartVolume" width="320" height="140"></canvas>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <div style="flex:1">
+              <div class="muted">Seleccione su rutina</div>
+              <div id="openRoutineArea" style="margin-top:8px"></div>
+            </div>
+
+            <div style="width:360px">
+              <div class="muted">Historial (local)</div>
+              <div id="historyList" style="margin-top:8px;max-height:220px;overflow:auto"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Entrenamiento -->
+        <div class="card" style="margin-top:12px">
+          <h3 id="workoutTitle">Entrenamiento</h3>
+          <div class="muted" id="workoutInfo">No estás en un entrenamiento</div>
+
+          <div id="exerciseContainer" style="margin-top:12px"></div>
+
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button id="btnAddExercise" class="small btn-ghost">Agregar ejercicio</button>
+            <button id="btnSaveWorkout" class="small btn-primary">Guardar sesión</button>
+            <button id="btnCancelWorkout" class="small btn-ghost">Cancelar</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ========== CONSULTA DE MEMBRESÍA ========== -->
+<div class="card membership-box" style="margin-top:25px; padding:20px">
+      <h2 style="margin:0; font-size:22px; font-family:Oswald;">Estado de Membresía</h2>
+      <p class="muted" style="margin-top:4px">
+        Consulta si tu membresía está <b>vigente</b>, <b>por vencer</b> o <b>vencida</b>.
+      </p>
+
+      <div style="margin-top:12px">
+        <label class="label-small">DNI del Cliente</label>
+        <div class="row">
+          <input 
+            id="buscarDNI" 
+            placeholder="Ingresa el DNI"
+            style="flex:1"
+          >
+          <button 
+            onclick="buscarPorDNI()" 
+            class="btn-primary" 
+            style="padding:8px 14px; font-size:14px">
+            Buscar
+          </button>
+        </div>
+      </div>
+
+      <div class="table-box" style="margin-top:15px; max-height:200px; overflow:auto">
+        <table 
+          id="tablaConsultas" 
+          style="width:100%; border-collapse:collapse; color:#eee;">
+        </table>
+      </div>
+
+      <div class="motivation" style="margin-top:15px; font-style:italic; text-align:center; color:var(--accent-2);">
+        “Disciplina hoy · Resultados mañana”
+      </div>
+    </div>
+
+  </div>
+
+  <script src="Cliente.js"></script>
+  <script src="Recepcionista.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,147 @@
+
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Entrenador Horarios y Planificación</title>
+<style>
+  :root{--bg:#0b0f1a;--panel:#0f1724;--accent:#6bff7f;--muted:#9aa4b2;--card:#0c1220}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter, Arial, sans-serif;background:linear-gradient(180deg,#071024 0%, #07192a 100%);color:#e6eef8}
+  .container{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+  aside{background:var(--panel);padding:20px;border-right:1px solid rgba(255,255,255,0.03)}
+  header h1{margin:0;font-size:20px;color:var(--accent)}
+  p.lead{color:var(--muted);margin-top:8px;font-size:13px}
+  .nav{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+  .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;border-radius:8px;color:inherit;cursor:pointer}
+  .btn.primary{background:var(--accent);color:#08101a;border:none}
+
+  main{padding:24px}
+  .top{display:flex;gap:16px;align-items:center;justify-content:space-between}
+  .card{background:rgba(255,255,255,0.02);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+
+  .controls{display:flex;gap:12px;align-items:center}
+  select,input[type=text]{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+
+  .grid-week{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:16px}
+  .day{min-height:140px;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.02);background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+  .day h3{margin:0;font-size:14px;color:var(--muted)}
+  .session{margin-top:8px;padding:6px;border-radius:6px;background:rgba(0,0,0,0.4);font-size:13px;border-left:4px solid var(--accent);cursor:pointer}
+  .session small{display:block;color:var(--muted);font-size:11px}
+
+  .side-panel{margin-top:16px}
+  .form-row{display:flex;gap:8px}
+  label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+  input,textarea,select{width:100%}
+  textarea{min-height:80px}
+
+  .notice{margin-top:12px;color:var(--muted);font-size:13px}
+
+  footer{margin-top:18px;color:var(--muted);font-size:13px}
+
+  /* modal */
+  .modal{position:fixed;left:0;top:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);}
+  .modal .box{background:var(--card);padding:16px;border-radius:10px;width:420px}
+  .hidden{display:none}
+
+  @media(max-width:900px){.container{grid-template-columns:1fr}aside{display:none}.grid-week{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <aside>
+    <header>
+      <h1>Entrenador Dynamic GYM</h1>
+      <p class="lead">Consultar horario, planificar sesiones y notificar cambios.</p>
+    </header>
+
+    <nav class="nav">
+      <button class="btn" onclick="viewMode='week';render()">Ver semana</button>
+      <button class="btn" onclick="viewMode='day';render()">Ver día</button>
+      <button class="btn" onclick="openAddModal()">Planificar sesión</button>
+      
+    </nav>
+
+    <div class="side-panel">
+
+      <div class="card" style="margin-top:12px">
+        <strong>Cuenta Rápida</strong>
+        <p class="notice">Última actualización: <span id="lastUpdate">-</span></p>
+      </div>
+
+      <footer>
+        <small>Gestión de entrenadores</small>
+      </footer>
+    </div>
+  </aside>
+
+  <main>
+    <div class="top">
+      <div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" onclick="prev()">◀</button>
+          <button class="btn" onclick="today()">Hoy</button>
+          <button class="btn" onclick="next()">▶</button>
+          <strong style="margin-left:12px" id="rangeLabel"></strong>
+        </div>
+      </div>
+      <div class="controls">
+        <input type="text" id="searchClient" placeholder="Buscar por cliente..." />
+        <button class="btn" onclick="applySearch()">Buscar</button>
+        <button class="btn" onclick="clearSearch()">Limpiar</button>
+      </div>
+    </div>
+
+    <div id="contentArea">
+      <!-- Week grid -->
+      <div id="weekView" class="card">
+        <div class="grid-week" id="gridWeek"></div>
+      </div>
+
+      <!-- Day list -->
+      <div id="dayView" class="card hidden">
+        <div id="listDay"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- Modal Agregar/Editar -->
+<div id="modal" class="modal hidden">
+  <div class="box">
+    <h3 id="modalTitle">Planificar sesión</h3>
+    <div>
+      <label>Cliente / Entrenado</label>
+      <input type="text" id="mCliente" placeholder="Nombre cliente" />
+    </div>
+    <div class="form-row" style="margin-top:8px">
+      <div style="flex:1">
+        <label>Fecha</label>
+        <input type="date" id="mFecha" />
+      </div>
+      <div style="flex:1">
+        <label>Hora</label>
+        <input type="time" id="mHora" />
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <label>Duración (min)</label>
+      <input type="number" id="mDuracion" value="60" />
+    </div>
+    <div style="margin-top:8px">
+      <label>Notas</label>
+      <textarea id="mNotas" placeholder="Objetivos, tipo: velocidad / resistencia..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary" onclick="saveModal()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script src="Entrenador.js">
+
+</script>
+</body>
+</html>
